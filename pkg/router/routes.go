@@ -15,5 +15,6 @@ func (a *API) upload(w http.ResponseWriter, req *http.Request) {
 }
 
 func (a *API) search(w http.ResponseWriter, req *http.Request) {
+	req.URL.Query()
 
 }

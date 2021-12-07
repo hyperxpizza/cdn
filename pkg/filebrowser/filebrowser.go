@@ -1,15 +1,17 @@
 package filebrowser
 
 import (
-	"database/sql"
 	"sync"
+
+	"github.com/hyperxpizza/cdn/pkg/database"
 )
 
 type FileBrowser struct {
-	db    *sql.DB
+	db    database.Database
 	mutex sync.Mutex
 }
 
 func (fb *FileBrowser) FindFile(name string) {
-
+	fb.mutex.Lock()
+	defer fb.mutex.Unlock()
 }
