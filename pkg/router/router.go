@@ -24,6 +24,7 @@ func Run() {
 
 	server.HandleFunc("/download", api.download)
 	server.HandleFunc("/upload", api.upload)
+	server.HandleFunc("/search", api.search)
 
 	if err := http.ListenAndServe(":8888", server); err != nil {
 		log.Fatal(err)

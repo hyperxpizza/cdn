@@ -13,3 +13,7 @@ func (a *API) download(w http.ResponseWriter, req *http.Request) {
 func (a *API) upload(w http.ResponseWriter, req *http.Request) {
 
 }
+
+func (a *API) search(w http.ResponseWriter, req *http.Request) {
+
+}
