@@ -4,12 +4,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/hyperxpizza/cdn/pkg/config"
 	"github.com/hyperxpizza/cdn/pkg/handlers"
 )
 
 type API struct {
 	downloader *handlers.Downloader
 	uploader   *handlers.Uploader
+	cfg        *config.Config
 }
 
 func NewApi() *API {
