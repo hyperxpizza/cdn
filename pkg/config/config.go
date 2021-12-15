@@ -16,6 +16,9 @@ type Config struct {
 		Name     string `json:"name"`
 		Host     string `json:"host"`
 	} `json:"Database"`
+	FileBrowser struct {
+		Rootpath string `json:"rootPath"`
+	} `json:"FileBrowser"`
 }
 
 func NewConfig(path string) (*Config, error) {

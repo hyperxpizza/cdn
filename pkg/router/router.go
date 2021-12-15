@@ -5,13 +5,12 @@ import (
 	"net/http"
 
 	"github.com/hyperxpizza/cdn/pkg/config"
-	"github.com/hyperxpizza/cdn/pkg/handlers"
+	"github.com/hyperxpizza/cdn/pkg/filebrowser"
 )
 
 type API struct {
-	downloader *handlers.Downloader
-	uploader   *handlers.Uploader
-	cfg        *config.Config
+	fb  *filebrowser.FileBrowser
+	cfg *config.Config
 }
 
 func NewApi() *API {

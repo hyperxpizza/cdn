@@ -13,6 +13,8 @@ func (a *API) download(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	//check if file exists in the database
+
 }
 
 func (a *API) upload(w http.ResponseWriter, req *http.Request) {
@@ -50,6 +52,7 @@ func (a *API) upload(w http.ResponseWriter, req *http.Request) {
 	}
 
 	//save into the bucket
+	err = a.fb.SaveFile(compressedData, fileName, "test-bucket")
 
 	//insert record into the database
 
