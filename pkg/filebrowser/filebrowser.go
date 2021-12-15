@@ -2,12 +2,9 @@ package filebrowser
 
 import (
 	"sync"
-
-	"github.com/hyperxpizza/cdn/pkg/database"
 )
 
 type FileBrowser struct {
-	db    database.Database
 	mutex sync.Mutex
 }
 
@@ -25,4 +22,12 @@ func (fb *FileBrowser) DeleteFile(id int) error {
 	defer fb.mutex.Unlock()
 
 	return nil
+}
+
+func (fb *FileBrowser) SaveFile(data []byte, name, bucket string) error {
+	return nil
+}
+
+func (fb *FileBrowser) GetFile(id int) {
+
 }

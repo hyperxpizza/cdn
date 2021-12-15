@@ -36,7 +36,10 @@ func (db *Database) AddFile(f filebrowser.File) error {
 		return err
 	}
 
-	err = s
+	_, err = stmt.Exec(f.Name, f.Path)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

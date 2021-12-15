@@ -3,7 +3,7 @@ package router
 import (
 	"net/http"
 
-	"github.com/hyperxpizza/cdn/pkg/filebrowser"
+	"github.com/hyperxpizza/cdn/pkg/compressor"
 )
 
 func (a *API) download(w http.ResponseWriter, req *http.Request) {
@@ -40,10 +40,17 @@ func (a *API) upload(w http.ResponseWriter, req *http.Request) {
 	mimetype := mimeTypeHeader.Get("Content-Type")
 	sizeBeforeCompression := handler.Size
 
-	file := filebrowser.NewFile(fileName, uint64(sizeBeforeCompression), mimetype)
+	//file := filebrowser.NewFile(fileName, uint64(sizeBeforeCompression), mimetype)
 
 	//compress the file
+	compressedSize, compressedData, err := compressor.CompressFile(data)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	//save into the bucket
+
 	//insert record into the database
 
 	w.WriteHeader(http.StatusOK)

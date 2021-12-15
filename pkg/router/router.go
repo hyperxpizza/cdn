@@ -18,7 +18,7 @@ func NewApi() *API {
 	return &API{}
 }
 
-func Run() {
+func Run(c *config.Config) {
 
 	api := NewApi()
 

@@ -7,15 +7,15 @@ import (
 
 type Config struct {
 	Uploader struct {
-		MaxFileSize int64
-	}
+		MaxFileSize int64 `json:"MaxFileSize"`
+	} `json:"Upload"`
 	Database struct {
-		User     string
-		Password string
-		Port     int
-		Name     string
-		Host     string
-	}
+		User     string `json:"user"`
+		Password string `json:"password"`
+		Port     int    `json:"port"`
+		Name     string `json:"name"`
+		Host     string `json:"host"`
+	} `json:"Database"`
 }
 
 func NewConfig(path string) (*Config, error) {
