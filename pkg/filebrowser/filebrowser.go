@@ -3,6 +3,7 @@ package filebrowser
 import (
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/hyperxpizza/cdn/pkg/config"
@@ -52,9 +53,22 @@ func (fb *FileBrowser) SaveFile(data []byte, name, bucket string) error {
 		}
 	}
 
-	//check if file exists
-
 	name = name + ".gz"
+	if fb.CheckIfFileExists(bucket, name) {
+		i := 1
+		for {
+			nameSplitted := strings.Split(name, ".")
+			nameSplitted[0] = nameSplitted[0] + fmt.Sprintf("(%d)", i)
+			name = nameSplitted[0] + nameSplitted[1]
+			if !fb.CheckIfFileExists(bucket, name) {
+				break
+			} else {
+				i++
+				continue
+			}
+		}
+	}
+
 	fullPath := fmt.Sprintf("%s/%s/%s", fb.rootPath, bucket, name)
 	file, err := os.Create(fullPath)
 	if err != nil {
