@@ -1,9 +1,12 @@
 package router
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/hyperxpizza/cdn/pkg/compressor"
+	"github.com/hyperxpizza/cdn/pkg/customErrors"
+	"github.com/hyperxpizza/cdn/pkg/filebrowser"
 )
 
 func (a *API) download(w http.ResponseWriter, req *http.Request) {
@@ -53,11 +56,27 @@ func (a *API) upload(w http.ResponseWriter, req *http.Request) {
 
 	//save into the bucket
 	err = a.fb.SaveFile(compressedData, fileName, "test-bucket")
+	if err != nil {
+		if errors.Is(customErrors.Wrap(customErrors.ErrBucketAlreadyExists), err) {
+			w.WriteHeader(http.StatusConflict)
+			return
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	bucket := "test-bucket"
+	file := filebrowser.NewFile(fileName+".gz", bucket, uint64(sizeBeforeCompression), uint64(compressedSize), mimetype)
 
 	//insert record into the database
+	err = a.db.AddFile(file)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 
-	w.WriteHeader(http.StatusOK)
-
+	w.WriteHeader(http.StatusCreated)
+	return
 }
 
 func (a *API) search(w http.ResponseWriter, req *http.Request) {

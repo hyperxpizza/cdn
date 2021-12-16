@@ -13,12 +13,14 @@ type File struct {
 	Updated              time.Time
 }
 
-func NewFile(name string, size uint64, mimeType string) *File {
-	return &File{
-		Name:     name,
-		Size:     size,
-		MimeType: mimeType,
-		Created:  time.Now(),
-		Updated:  time.Now(),
+func NewFile(name string, bucket string, size uint64, sizeAfterCompression uint64, mimeType string) File {
+	return File{
+		Name:                 name,
+		Bucket:               bucket,
+		Size:                 size,
+		SizeAfterCompression: sizeAfterCompression,
+		MimeType:             mimeType,
+		Created:              time.Now(),
+		Updated:              time.Now(),
 	}
 }
