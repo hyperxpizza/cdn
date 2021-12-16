@@ -57,6 +57,4 @@ func (db *Database) DeleteFile(id int) error {
 	return nil
 }
 
-func (d *Database) SearchFile() {}
-
-func (d *Database) GetFiles() {}
+func (d *Database) SearchFile(name string) {}
