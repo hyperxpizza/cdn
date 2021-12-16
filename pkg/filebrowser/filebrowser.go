@@ -91,7 +91,13 @@ func (fb *FileBrowser) CreateBucket(name string) error {
 }
 
 func (fb *FileBrowser) CheckIfFileExists(name, bucket string) bool {
+	path := fmt.Sprintf("%s/%s/%s", fb.rootPath, bucket, name)
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
 
+	return !info.IsDir()
 }
 
 func (fb *FileBrowser) CheckIfBucketExists(name string) bool {
