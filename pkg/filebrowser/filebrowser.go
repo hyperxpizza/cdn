@@ -39,6 +39,16 @@ func (fb *FileBrowser) DeleteFile(name, bucket string) error {
 		return customErrors.Wrap(customErrors.ErrBucketNotFound)
 	}
 
+	if !fb.CheckIfFileExists(bucket, name) {
+		return customErrors.Wrap(customErrors.ErrBucketNotFound)
+	}
+
+	fullPath := fmt.Sprintf("%s/%s/%s", fb.rootPath, bucket, name)
+	err := os.Remove(fullPath)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -84,7 +94,6 @@ func (fb *FileBrowser) SaveFile(data []byte, name, bucket string) error {
 }
 
 func (fb *FileBrowser) GetFile(name, bucket string) (*os.File, error) {
-	var file os.File
 
 	fb.mutex.RLock()
 	defer fb.mutex.RUnlock()
@@ -93,7 +102,17 @@ func (fb *FileBrowser) GetFile(name, bucket string) (*os.File, error) {
 		return nil, customErrors.Wrap(customErrors.ErrBucketNotFound)
 	}
 
-	return &file, nil
+	if !fb.CheckIfFileExists(bucket, name) {
+		return nil, customErrors.Wrap(customErrors.ErrBucketNotFound)
+	}
+
+	fullPath := fmt.Sprintf("%s/%s/%s", fb.rootPath, bucket, name)
+	file, err := os.Open(fullPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return file, nil
 }
 
 func (fb *FileBrowser) CreateBucket(name string) error {
