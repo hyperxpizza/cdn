@@ -5,7 +5,7 @@ import "time"
 type File struct {
 	ID                   int
 	Name                 string
-	Path                 string
+	Bucket               string
 	Size                 uint64
 	SizeAfterCompression uint64
 	MimeType             string

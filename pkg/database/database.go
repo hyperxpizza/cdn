@@ -31,19 +31,29 @@ func NewDatabase(c *config.Config) (*Database, error) {
 }
 
 func (db *Database) AddFile(f filebrowser.File) error {
-	stmt, err := db.Prepare(`insert into files(id, name, path, size, sizeAfterCompression, extension, mimeType, created, updated) values(default, $1, $2, $3, $4, $5, $6, $7, $8`)
+	stmt, err := db.Prepare(`insert into files(id, name, bucket, size, sizeAfterCompression, extension, mimeType, created, updated) values(default, $1, $2, $3, $4, $5, $6, $7, $8`)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(f.Name, f.Path)
+	_, err = stmt.Exec(f.Name, f.Bucket)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (d *Database) DeleteFile() error {
+func (db *Database) DeleteFile(id int) error {
+	stmt, err := db.Prepare(`delete from files where id = $1`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
