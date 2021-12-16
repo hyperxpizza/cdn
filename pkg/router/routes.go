@@ -45,8 +45,6 @@ func (a *API) upload(w http.ResponseWriter, req *http.Request) {
 	mimetype := mimeTypeHeader.Get("Content-Type")
 	sizeBeforeCompression := handler.Size
 
-	//file := filebrowser.NewFile(fileName, uint64(sizeBeforeCompression), mimetype)
-
 	//compress the file
 	compressedSize, compressedData, err := compressor.CompressFile(data)
 	if err != nil {
@@ -73,6 +71,7 @@ func (a *API) upload(w http.ResponseWriter, req *http.Request) {
 	err = a.db.AddFile(file)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
