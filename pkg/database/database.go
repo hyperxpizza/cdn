@@ -57,4 +57,8 @@ func (db *Database) DeleteFile(id int) error {
 	return nil
 }
 
-func (d *Database) SearchFile(name string) {}
+func (d *Database) SearchFile(name string) ([]*filebrowser.File, error) {
+	var files []*filebrowser.File
+
+	return files, nil
+}

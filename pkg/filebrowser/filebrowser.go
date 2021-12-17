@@ -120,6 +120,12 @@ func (fb *FileBrowser) CreateBucket(name string) error {
 		return customErrors.Wrap(customErrors.ErrBucketAlreadyExists)
 	}
 
+	fullPath := fmt.Sprintf("%s/%s", fb.rootPath, name)
+	err := os.Mkdir(fullPath, 0755)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

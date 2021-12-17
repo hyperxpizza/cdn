@@ -21,6 +21,11 @@ func (a *API) download(w http.ResponseWriter, req *http.Request) {
 }
 
 func (a *API) upload(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	if err := req.ParseMultipartForm(a.cfg.Uploader.MaxFileSize); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

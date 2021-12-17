@@ -1,0 +1,16 @@
+version: '3.9'
+services:
+  postgres:
+    build: ./postgres
+    environment:
+      POSTGRES_DB: cdndb
+      POSTGRES_USER: cdndbuser
+      POSTGRES_PASSWORD: cdndbpassword
+    volumes:
+      - data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "cdndb", "-U", "cdndbuser"]
+      interval: 10s
+      start_period: 30s
+volumes:
+  data:
