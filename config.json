@@ -1,3 +1,15 @@
 {
-
+    "Upload": {
+        "MaxFileSize": 1
+    },
+    "Database": {
+        "user": "cdndbuser",
+        "password": "cdndbpassword",
+        "port": 5432,
+        "name": "cdndb",
+        "host": "127.0.0.1"
+    },
+    "FileBrowser": {
+        "rootPath": "/home/hyper"
+    }
 }
