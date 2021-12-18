@@ -12,5 +12,13 @@ services:
       test: ["CMD", "pg_isready", "-d", "cdndb", "-U", "cdndbuser"]
       interval: 10s
       start_period: 30s
+  cdn:
+    build: .
+    ports:
+      - "80:80"
+  nginx:
+    build: "./nginx"
+    ports: 
+      - "80:80"
 volumes:
   data:

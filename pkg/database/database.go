@@ -60,5 +60,14 @@ func (db *Database) DeleteFile(id int) error {
 func (d *Database) SearchFile(name string) ([]*filebrowser.File, error) {
 	var files []*filebrowser.File
 
+	rows, err := d.Query(``, name)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+
+	}
+
 	return files, nil
 }
