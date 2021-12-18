@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -31,15 +32,32 @@ func NewDatabase(c *config.Config) (*Database, error) {
 }
 
 func (db *Database) AddFile(f filebrowser.File) error {
-	stmt, err := db.Prepare(`insert into files(id, name, bucket, size, sizeAfterCompression, extension, mimeType, created, updated) values(default, $1, $2, $3, $4, $5, $6, $7, $8`)
+
+	ctx := context.Background()
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	var id int
+	err = tx.QueryRowContext(ctx, `insert into files(id, name, bucket, size, sizeAfterCompression, extension, mimeType, created, updated) values(default, $1, $2, $3, $4, $5, $6, $7, $8) returning id`).Scan(&id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, `update files set files_token=to_tsvector($1) where id =$2`, f.Name, id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(f.Name, f.Bucket)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -60,13 +78,29 @@ func (db *Database) DeleteFile(id int) error {
 func (d *Database) SearchFile(name string) ([]*filebrowser.File, error) {
 	var files []*filebrowser.File
 
-	rows, err := d.Query(``, name)
+	rows, err := d.Query(`select id, name, bucket, size, sizeAfterCompression, extension, mimeType, created, updated from files where files_token @@ to_tsquery($1)`, name)
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
+		var file filebrowser.File
+		err := rows.Scan(
+			&file.ID,
+			&file.Name,
+			&file.Bucket,
+			&file.Size,
+			&file.SizeAfterCompression,
+			&file.Extension,
+			&file.MimeType,
+			&file.Created,
+			&file.Updated,
+		)
+		if err != nil {
+			return nil, err
+		}
 
+		files = append(files, &file)
 	}
 
 	return files, nil

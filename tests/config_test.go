@@ -9,20 +9,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var path = flag.String("path", "", "path to config.json file")
+var configPath = flag.String("path", "", "path to config.json file")
 
 // go test -v
 func TestLoadConfig(t *testing.T) {
-
 	flag.Parse()
 
-	if *path == "" {
+	if *configPath == "" {
 		log.Println("Config path is empty")
 		t.Fail()
 		return
 	}
 
-	c, err := config.NewConfig(*path)
+	c, err := config.NewConfig(*configPath)
 	assert.NoError(t, err)
 	c.PrettyPrint()
 }

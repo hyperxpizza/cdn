@@ -8,6 +8,7 @@ type File struct {
 	Bucket               string
 	Size                 uint64
 	SizeAfterCompression uint64
+	Extension            string
 	MimeType             string
 	Created              time.Time
 	Updated              time.Time

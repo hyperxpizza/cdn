@@ -8,5 +8,6 @@ create table files (
     extension varchar(10) not null,
     mimeType text not null,
     created timestamp not null,
-    updated timestamp not null
+    updated timestamp not null,
+    files_token TSVECTOR,
 );
