@@ -1,7 +1,9 @@
 version: '3.9'
 services:
   postgres:
-    build: ./postgres
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
     environment:
       POSTGRES_DB: cdndb
       POSTGRES_USER: cdndbuser
@@ -13,12 +15,20 @@ services:
       interval: 10s
       start_period: 30s
   cdn:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "8888:8888"
+    depends_on:
+      - postgres
   nginx:
-    build: "./nginx"
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     ports: 
       - "80:80"
+    depends_on:
+      - cdn
 volumes:
   data:
