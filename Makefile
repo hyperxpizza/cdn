@@ -6,3 +6,5 @@ psql:
 	docker-compose exec postgres psql -d cdndb -U cdndbuser
 docker_build:
 	docker build -t cdn .
+run:
+	./bin/main --config=/home/hyperxpizza/dev/golang/cdn/config.json

@@ -16,6 +16,7 @@ func main() {
 
 	if *configPath == "" {
 		log.Fatal("Config path was not set, aborting...")
+		return
 	}
 
 	c, err := config.NewConfig(*configPath)

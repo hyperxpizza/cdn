@@ -8,6 +8,7 @@ import (
 
 	"github.com/hyperxpizza/cdn/pkg/config"
 	"github.com/hyperxpizza/cdn/pkg/filebrowser"
+	_ "github.com/lib/pq"
 )
 
 type Database struct {

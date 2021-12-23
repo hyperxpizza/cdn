@@ -2,6 +2,7 @@ package router
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/hyperxpizza/cdn/pkg/compressor"
@@ -84,6 +85,12 @@ func (a *API) upload(w http.ResponseWriter, req *http.Request) {
 }
 
 func (a *API) search(w http.ResponseWriter, req *http.Request) {
-	req.URL.Query()
+	if req.Method != "POST" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	query := req.URL.Query()
+	fmt.Println(query.Get("q"))
 
 }

@@ -7,9 +7,9 @@
         "password": "cdndbpassword",
         "port": 5432,
         "name": "cdndb",
-        "host": "127.0.0.1"
+        "host": "localhost"
     },
     "FileBrowser": {
-        "rootPath": "/home/hyper"
+        "rootPath": "/home/hyperxpizza/dev/golang/cdn/files_root"
     }
 }
