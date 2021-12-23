@@ -26,7 +26,7 @@ func (c *CDNServiceImpl) DownloadFile(req *pb.DownloadFileRequest, stream pb.CDN
 	return nil
 }
 
-func (c *CDNServiceImpl) SearchFile(ctx context.Context, req *pb.SearchResponse) (*pb.SearchResponse, error) {
+func (c *CDNServiceImpl) SearchFiles(ctx context.Context, req *pb.SearchResponse) (*pb.SearchResponse, error) {
 	var resp pb.SearchResponse
 	return &resp, nil
 }
