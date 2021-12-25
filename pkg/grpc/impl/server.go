@@ -25,18 +25,18 @@ func NewCDNService(c *config.Config, db *database.Database) CDNServiceImpl {
 	}
 }
 
-func (c *CDNServiceImpl) UploadFile(req *pb.UploadFileRequest, stream pb.CDNGrpcService_UploadFileServer) error {
+func (c CDNServiceImpl) UploadFile(rstream pb.CDNGrpcService_UploadFileServer) error {
 	return nil
 }
 
-func (c *CDNServiceImpl) DownloadFile(req *pb.DownloadFileRequest, stream pb.CDNGrpcService_DownloadFileServer) error {
+func (c CDNServiceImpl) DownloadFile(req *pb.DownloadFileRequest, stream pb.CDNGrpcService_DownloadFileServer) error {
 	return nil
 }
 
-func (c *CDNServiceImpl) SearchFiles(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
+func (c CDNServiceImpl) SearchFiles(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
 	var resp pb.SearchResponse
 
-	files, err := c.db.SearchFile(req.GetPhrase())
+	files, err := c.db.SearchFiles(req.GetPhrase())
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return &resp, nil

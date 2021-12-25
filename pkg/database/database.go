@@ -76,7 +76,7 @@ func (db *Database) DeleteFile(id int) error {
 	return nil
 }
 
-func (d *Database) SearchFile(name string) ([]*filebrowser.File, error) {
+func (d *Database) SearchFiles(name string) ([]*filebrowser.File, error) {
 	var files []*filebrowser.File
 
 	rows, err := d.Query(`select id, name, bucket, size, sizeAfterCompression, extension, mimeType, created, updated from files where files_token @@ to_tsquery($1)`, name)

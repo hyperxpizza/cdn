@@ -20,6 +20,14 @@ type Config struct {
 	FileBrowser struct {
 		Rootpath string `json:"rootPath"`
 	} `json:"FileBrowser"`
+	Grpc struct {
+		Host string `json:"host"`
+		Port int    `json:"port"`
+	} `json:"Grpc"`
+	Rest struct {
+		Host string `json:"host"`
+		Port int    `json:"port"`
+	} `json:"Rest"`
 }
 
 func NewConfig(path string) (*Config, error) {

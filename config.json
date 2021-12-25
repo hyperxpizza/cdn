@@ -11,5 +11,13 @@
     },
     "FileBrowser": {
         "rootPath": "/home/hyperxpizza/dev/golang/cdn/files_root"
+    },
+    "Grpc": {
+        "host": "127.0.0.1",
+        "port": 8887
+    },
+    "Rest": {
+        "host": "127.0.0.1",
+        "port": 8888
     }
 }
