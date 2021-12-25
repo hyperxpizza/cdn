@@ -7,12 +7,13 @@ import "google/protobuf/timestamp.proto";
 message File {
     int64 id = 1;
     string name = 2;
-    string path = 3;
+    string bucket = 3;
     uint64 size = 4;
     uint64 sizeAfterCompression = 5;
-    string mimeType = 6;
-    google.protobuf.Timestamp created = 7;
-    google.protobuf.Timestamp updated = 8;
+    string extension = 6;
+    string mimeType = 7;
+    google.protobuf.Timestamp created = 8;
+    google.protobuf.Timestamp updated = 9;
 }
 
 message UploadFileRequest {
