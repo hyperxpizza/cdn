@@ -12,4 +12,5 @@ RUN apk add ca-certificates
 COPY --from=build /tmp/app/out/api /app/api
 WORKDIR "/app"
 EXPOSE 8888
+EXPOSE 8887
 CMD ["./api"]

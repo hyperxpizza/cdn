@@ -20,6 +20,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8888:8888"
+      - "8887:8887"
     depends_on:
       - postgres
   nginx:
