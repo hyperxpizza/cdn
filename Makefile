@@ -1,3 +1,6 @@
+
+current_dir=$(shell pwd)
+
 build:
 	go build -o bin/main ./cmd/cdn/main.go
 gen_proto:
@@ -7,4 +10,7 @@ psql:
 docker_build:
 	docker build -t cdn .
 run:
-	./bin/main --config=/home/hyperxpizza/dev/golang/cdn/config.json
+	./bin/main --config=/home/hyperxpizza/dev/golang/cdn/config.json --grpc=true --rest=true
+#run_grpc:
+#	./bin/main --config=/home/hyperxpizz
+
