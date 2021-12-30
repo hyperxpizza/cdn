@@ -30,11 +30,12 @@ func NewApi(c *config.Config) (*API, error) {
 	}, nil
 }
 
-func Run(c *config.Config) {
+func Run(c *config.Config) error {
 
 	api, err := NewApi(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 
 	server := http.NewServeMux()
@@ -44,6 +45,9 @@ func Run(c *config.Config) {
 	server.HandleFunc("/search", api.search)
 
 	if err := http.ListenAndServe(":8888", server); err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
+
+	return nil
 }
