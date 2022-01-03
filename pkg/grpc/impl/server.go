@@ -1,15 +1,20 @@
 package impl
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net"
 
+	"github.com/hyperxpizza/cdn/pkg/compressor"
 	"github.com/hyperxpizza/cdn/pkg/config"
+	"github.com/hyperxpizza/cdn/pkg/customErrors"
 	"github.com/hyperxpizza/cdn/pkg/database"
+	"github.com/hyperxpizza/cdn/pkg/filebrowser"
 	pb "github.com/hyperxpizza/cdn/pkg/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -20,6 +25,7 @@ type CDNServiceImpl struct {
 	pb.UnimplementedCDNGrpcServiceServer
 	cfg *config.Config
 	db  *database.Database
+	fb  *filebrowser.FileBrowser
 }
 
 func NewCDNService(c *config.Config) (*CDNServiceImpl, error) {
@@ -28,9 +34,15 @@ func NewCDNService(c *config.Config) (*CDNServiceImpl, error) {
 		return nil, err
 	}
 
+	fb := filebrowser.NewFileBrowser(c)
+	if err != nil {
+		return nil, err
+	}
+
 	return &CDNServiceImpl{
 		cfg: c,
 		db:  db,
+		fb:  fb,
 	}, nil
 }
 
@@ -53,7 +65,87 @@ func (cdn *CDNServiceImpl) Run() {
 
 }
 
-func (c CDNServiceImpl) UploadFile(rstream pb.CDNGrpcService_UploadFileServer) error {
+func (c CDNServiceImpl) UploadFile(stream pb.CDNGrpcService_UploadFileServer) error {
+
+	req, err := stream.Recv()
+	if err != nil {
+		return status.Error(
+			codes.Internal,
+			err.Error(),
+		)
+	}
+
+	file := req.GetFile()
+	if file.GetSize() > uint64(c.cfg.Uploader.MaxFileSize) {
+		return status.Error(
+			codes.FailedPrecondition,
+			customErrors.ErrFileTooLarge,
+		)
+	}
+
+	/*
+		//check if file exists in the database
+		err = c.db.CheckIfFileExists(file.Name, file.Bucket)
+		if err != nil {
+
+		}
+	*/
+
+	data := bytes.Buffer{}
+
+	for {
+		req, err := stream.Recv()
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+
+			return status.Error(
+				codes.FailedPrecondition,
+				err.Error(),
+			)
+		}
+
+		chunk := req.GetChunkData()
+		_, err = data.Write(chunk)
+		if err != nil {
+			return status.Error(
+				codes.Canceled,
+				err.Error(),
+			)
+		}
+	}
+
+	//compress file
+	sizeAfterCompression, compressedData, err := compressor.CompressFile(data.Bytes())
+	if err != nil {
+		return status.Error(
+			codes.Internal,
+			err.Error(),
+		)
+	}
+
+	//insert into the bucket
+	err = c.fb.SaveFile(compressedData, file.Name, file.Bucket)
+	if err != nil {
+		return status.Error(
+			codes.Internal,
+			err.Error(),
+		)
+	}
+
+	file.SizeAfterCompression = uint64(sizeAfterCompression)
+
+	//insert into the database
+	mappedFile := unmapFile(file)
+	err = c.db.AddFile(mappedFile)
+	if err != nil {
+		return status.Error(
+			codes.Internal,
+			err.Error(),
+		)
+	}
+
 	return nil
 }
 

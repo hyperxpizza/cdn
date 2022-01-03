@@ -25,6 +25,7 @@ func main() {
 	c, err := config.NewConfig(*configPath)
 	if err != nil {
 		log.Fatalf("Could not load config from file: %s , error: %s", *configPath, err.Error())
+		return
 	}
 
 	var wg sync.WaitGroup

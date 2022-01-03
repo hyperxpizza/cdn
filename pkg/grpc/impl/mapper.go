@@ -20,3 +20,17 @@ func mapFile(file *filebrowser.File) pb.File {
 	}
 
 }
+
+func unmapFile(file *pb.File) filebrowser.File {
+	return filebrowser.File{
+		ID:                   int(file.Id),
+		Name:                 file.Name,
+		Bucket:               file.Bucket,
+		Size:                 file.Size,
+		SizeAfterCompression: file.SizeAfterCompression,
+		Extension:            file.Extension,
+		MimeType:             file.MimeType,
+		Created:              file.Created.AsTime(),
+		Updated:              file.Updated.AsTime(),
+	}
+}

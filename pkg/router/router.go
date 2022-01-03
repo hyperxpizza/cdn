@@ -21,7 +21,7 @@ func NewApi(c *config.Config) (*API, error) {
 		return nil, err
 	}
 
-	fb := filebrowser.NewFileBrowser(*c)
+	fb := filebrowser.NewFileBrowser(c)
 
 	return &API{
 		db:  db,

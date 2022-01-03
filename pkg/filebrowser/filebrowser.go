@@ -15,7 +15,7 @@ type FileBrowser struct {
 	rootPath string
 }
 
-func NewFileBrowser(c config.Config) *FileBrowser {
+func NewFileBrowser(c *config.Config) *FileBrowser {
 	return &FileBrowser{sync.RWMutex{}, c.FileBrowser.Rootpath}
 }
 

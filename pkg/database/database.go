@@ -3,10 +3,12 @@ package database
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 
 	"github.com/hyperxpizza/cdn/pkg/config"
+	"github.com/hyperxpizza/cdn/pkg/customErrors"
 	"github.com/hyperxpizza/cdn/pkg/filebrowser"
 	_ "github.com/lib/pq"
 )
@@ -30,6 +32,20 @@ func NewDatabase(c *config.Config) (*Database, error) {
 	}
 
 	return &Database{database}, nil
+}
+
+func (db *Database) CheckIfFileExists(name, bucket string) error {
+	var id int
+	err := db.QueryRow(`select id from files where name = $1 and bucket = $2`).Scan(&id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return customErrors.Wrap(customErrors.ErrFileNotFound)
+		}
+
+		return err
+	}
+
+	return nil
 }
 
 func (db *Database) AddFile(f filebrowser.File) error {

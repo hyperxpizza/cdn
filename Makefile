@@ -11,6 +11,5 @@ docker_build:
 	docker build -t cdn .
 run:
 	./bin/main --config=/home/hyperxpizza/dev/golang/cdn/config.json --grpc=true --rest=true
-#run_grpc:
-#	./bin/main --config=/home/hyperxpizz
-
+test:
+	$(current_dir)
