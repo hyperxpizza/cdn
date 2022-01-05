@@ -4,6 +4,7 @@ package grpc
 
 import (
 	context "context"
+	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -21,6 +22,7 @@ type CDNGrpcServiceClient interface {
 	UploadFile(ctx context.Context, opts ...grpc.CallOption) (CDNGrpcService_UploadFileClient, error)
 	DownloadFile(ctx context.Context, in *DownloadFileRequest, opts ...grpc.CallOption) (CDNGrpcService_DownloadFileClient, error)
 	SearchFiles(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
+	DeleteFile(ctx context.Context, in *DeleteFileRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type cDNGrpcServiceClient struct {
@@ -106,6 +108,15 @@ func (c *cDNGrpcServiceClient) SearchFiles(ctx context.Context, in *SearchReques
 	return out, nil
 }
 
+func (c *cDNGrpcServiceClient) DeleteFile(ctx context.Context, in *DeleteFileRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/CDNGrpcService/DeleteFile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDNGrpcServiceServer is the server API for CDNGrpcService service.
 // All implementations must embed UnimplementedCDNGrpcServiceServer
 // for forward compatibility
@@ -113,6 +124,7 @@ type CDNGrpcServiceServer interface {
 	UploadFile(CDNGrpcService_UploadFileServer) error
 	DownloadFile(*DownloadFileRequest, CDNGrpcService_DownloadFileServer) error
 	SearchFiles(context.Context, *SearchRequest) (*SearchResponse, error)
+	DeleteFile(context.Context, *DeleteFileRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedCDNGrpcServiceServer()
 }
 
@@ -128,6 +140,9 @@ func (UnimplementedCDNGrpcServiceServer) DownloadFile(*DownloadFileRequest, CDNG
 }
 func (UnimplementedCDNGrpcServiceServer) SearchFiles(context.Context, *SearchRequest) (*SearchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchFiles not implemented")
+}
+func (UnimplementedCDNGrpcServiceServer) DeleteFile(context.Context, *DeleteFileRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteFile not implemented")
 }
 func (UnimplementedCDNGrpcServiceServer) mustEmbedUnimplementedCDNGrpcServiceServer() {}
 
@@ -207,6 +222,24 @@ func _CDNGrpcService_SearchFiles_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDNGrpcService_DeleteFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDNGrpcServiceServer).DeleteFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CDNGrpcService/DeleteFile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDNGrpcServiceServer).DeleteFile(ctx, req.(*DeleteFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDNGrpcService_ServiceDesc is the grpc.ServiceDesc for CDNGrpcService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -217,6 +250,10 @@ var CDNGrpcService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchFiles",
 			Handler:    _CDNGrpcService_SearchFiles_Handler,
+		},
+		{
+			MethodName: "DeleteFile",
+			Handler:    _CDNGrpcService_DeleteFile_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

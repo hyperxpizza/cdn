@@ -9,9 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var configPath = flag.String("path", "", "path to config.json file")
-
-// go test -v
 func TestLoadConfig(t *testing.T) {
 	flag.Parse()
 

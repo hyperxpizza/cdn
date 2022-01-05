@@ -3,6 +3,7 @@ syntax = "proto3";
 option go_package = "github.com/hyperxpizza/cdn/grpc";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 message File {
     int64 id = 1;
@@ -45,8 +46,14 @@ message SearchResponse {
     repeated File files = 1;
 }
 
+message DeleteFileRequest {
+    string bucket = 1;
+    string name = 2;
+}
+
 service CDNGrpcService {
     rpc UploadFile(stream UploadFileRequest) returns (UploadFileResponse) {};
     rpc DownloadFile(DownloadFileRequest) returns (stream DownlaodFileRespose) {};
     rpc SearchFiles(SearchRequest) returns (SearchResponse) {};
+    rpc DeleteFile(DeleteFileRequest) returns (google.protobuf.Empty) {};
 }

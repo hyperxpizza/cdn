@@ -21,6 +21,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type CDNServiceImpl struct {
@@ -245,4 +246,9 @@ func (c CDNServiceImpl) SearchFiles(ctx context.Context, req *pb.SearchRequest) 
 	}
 
 	return &resp, nil
+}
+
+func (c CDNServiceImpl) DeleteFile(ctx context.Context, req *pb.DeleteFileRequest) (*emptypb.Empty, error) {
+
+	return &emptypb.Empty{}, nil
 }
