@@ -19,18 +19,6 @@ func NewFileBrowser(c *config.Config) *FileBrowser {
 	return &FileBrowser{sync.RWMutex{}, c.FileBrowser.Rootpath}
 }
 
-func (fb *FileBrowser) FindFile(name, bucket string) (*File, error) {
-	fb.mutex.RLock()
-	defer fb.mutex.RUnlock()
-
-	var file File
-	if !fb.CheckIfBucketExists(bucket) {
-		return nil, customErrors.Wrap(customErrors.ErrBucketNotFound)
-	}
-
-	return &file, nil
-}
-
 func (fb *FileBrowser) DeleteFile(name, bucket string) error {
 	fb.mutex.Lock()
 	defer fb.mutex.Unlock()

@@ -72,13 +72,13 @@ func (db *Database) AddFile(f filebrowser.File) error {
 	return nil
 }
 
-func (db *Database) DeleteFile(id int) error {
-	stmt, err := db.Prepare(`delete from files where id = $1`)
+func (db *Database) DeleteFile(name, bucket string) error {
+	stmt, err := db.Prepare(`delete from files where name = $1 and bucket = $2`)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(id)
+	_, err = stmt.Exec(name, bucket)
 	if err != nil {
 		return err
 	}

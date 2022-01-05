@@ -250,5 +250,46 @@ func (c CDNServiceImpl) SearchFiles(ctx context.Context, req *pb.SearchRequest) 
 
 func (c CDNServiceImpl) DeleteFile(ctx context.Context, req *pb.DeleteFileRequest) (*emptypb.Empty, error) {
 
+	//search file in the database
+	err := c.db.CheckIfFileExists(req.Name, req.Bucket)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, status.Error(
+				codes.NotFound,
+				customErrors.ErrFileNotFound,
+			)
+		}
+
+		return nil, status.Error(
+			codes.Internal,
+			err.Error(),
+		)
+	}
+
+	//search for file with filebrowser
+	if !c.fb.CheckIfFileExists(req.Name, req.Bucket) {
+		return nil, status.Error(
+			codes.NotFound,
+			customErrors.ErrFileNotFound,
+		)
+	}
+
+	//file exists, proceed to delete
+	err = c.fb.DeleteFile(req.Name, req.Bucket)
+	if err != nil {
+		return nil, status.Error(
+			codes.Internal,
+			err.Error(),
+		)
+	}
+
+	err = c.db.DeleteFile(req.Name, req.Bucket)
+	if err != nil {
+		return nil, status.Error(
+			codes.Internal,
+			err.Error(),
+		)
+	}
+
 	return &emptypb.Empty{}, nil
 }
