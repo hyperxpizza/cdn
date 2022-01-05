@@ -24,7 +24,7 @@ message UploadFileRequest {
 }
 
 message DownloadFileRequest {
-    string path = 1;
+    string bucket = 1;
     string name = 2;
 }
 

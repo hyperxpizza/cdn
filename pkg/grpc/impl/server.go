@@ -1,12 +1,14 @@
 package impl
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 
@@ -150,6 +152,75 @@ func (c CDNServiceImpl) UploadFile(stream pb.CDNGrpcService_UploadFileServer) er
 }
 
 func (c CDNServiceImpl) DownloadFile(req *pb.DownloadFileRequest, stream pb.CDNGrpcService_DownloadFileServer) error {
+	//check if file exists in the database
+	err := c.db.CheckIfFileExists(req.Name, req.Bucket)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return status.Error(
+				codes.NotFound,
+				customErrors.ErrFileNotFound,
+			)
+		}
+	}
+
+	//check if file exists in the filebrowser
+	compressedFile, err := c.fb.GetFile(req.Name, req.Bucket)
+	if err != nil {
+		if errors.Is(err, customErrors.Wrap(customErrors.ErrBucketNotFound)) || errors.Is(err, customErrors.Wrap(customErrors.ErrFileNotFound)) {
+			return status.Error(
+				codes.NotFound,
+				err.Error(),
+			)
+		}
+
+		return status.Error(
+			codes.Internal,
+			err.Error(),
+		)
+	}
+
+	defer compressedFile.Close()
+
+	data, err := ioutil.ReadAll(bufio.NewReader(compressedFile))
+	if err != nil {
+		return status.Error(
+			codes.Internal,
+			err.Error(),
+		)
+	}
+
+	//decompress file
+	decompressedData, err := compressor.DecompressFile(data)
+	if err != nil {
+		return status.Error(
+			codes.Internal,
+			err.Error(),
+		)
+	}
+
+	chunk := 1024
+	chunksSent := 0
+	for {
+
+		if chunksSent > len(decompressedData) {
+			break
+		}
+
+		resp := pb.DownlaodFileRespose{
+			ChunkData: decompressedData[:chunk],
+		}
+
+		err := stream.Send(&resp)
+		if err != nil {
+			return status.Error(
+				codes.Internal,
+				err.Error(),
+			)
+		}
+
+		chunksSent = chunksSent + chunk
+	}
+
 	return nil
 }
 
