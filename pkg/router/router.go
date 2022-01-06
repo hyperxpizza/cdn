@@ -1,9 +1,10 @@
 package router
 
 import (
+	"fmt"
 	"log"
-	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/hyperxpizza/cdn/pkg/config"
 	"github.com/hyperxpizza/cdn/pkg/database"
 	"github.com/hyperxpizza/cdn/pkg/filebrowser"
@@ -38,16 +39,31 @@ func Run(c *config.Config) error {
 		return err
 	}
 
-	server := http.NewServeMux()
+	router := gin.Default()
 
-	server.HandleFunc("/download", api.download)
-	server.HandleFunc("/upload", api.upload)
-	server.HandleFunc("/search", api.search)
+	router.GET("/serach", api.search)
+	router.POST("/upload/:bucket", api.upload)
+	router.GET("/download/:bucket/:name", api.download)
+	router.DELETE("/delete/:bucket/:name", api.delete)
 
-	if err := http.ListenAndServe(":8888", server); err != nil {
-		log.Println(err)
-		return err
-	}
+	router.Use(corsMiddleware())
+
+	router.Run(fmt.Sprintf(":%d", c.Rest.Port))
 
 	return nil
+}
+
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
 }

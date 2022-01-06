@@ -1,96 +1,100 @@
 package router
 
 import (
+	"database/sql"
 	"errors"
-	"fmt"
+	"io/ioutil"
 	"net/http"
 
+	"github.com/gabriel-vasile/mimetype"
+	"github.com/gin-gonic/gin"
 	"github.com/hyperxpizza/cdn/pkg/compressor"
-	"github.com/hyperxpizza/cdn/pkg/customErrors"
 	"github.com/hyperxpizza/cdn/pkg/filebrowser"
 )
 
-func (a *API) download(w http.ResponseWriter, req *http.Request) {
-	if req.Method != "GET" {
-		w.Header().Set("Content-Type", "text/plain")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	//check if file exists in the database
-
+func (a *API) download(c *gin.Context) {
+	bucket := c.Param("bucket")
+	name :=
 }
 
-func (a *API) upload(w http.ResponseWriter, req *http.Request) {
-	if req.Method != "POST" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if err := req.ParseMultipartForm(a.cfg.Uploader.MaxFileSize); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	fileData, handler, err := req.FormFile("file")
+func (a *API) upload(c *gin.Context) {
+	fileData, err := c.FormFile("file")
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	defer fileData.Close()
-
-	var data []byte
-	_, err = fileData.Read(data)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	fileName := handler.Filename
-	mimeTypeHeader := handler.Header
-	mimetype := mimeTypeHeader.Get("Content-Type")
-	sizeBeforeCompression := handler.Size
-
-	//compress the file
-	compressedSize, compressedData, err := compressor.CompressFile(data)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	bucket := c.Param("bucket")
+	if bucket == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	//save into the bucket
-	err = a.fb.SaveFile(compressedData, fileName, "test-bucket")
+	data, err := fileData.Open()
 	if err != nil {
-		if errors.Is(customErrors.Wrap(customErrors.ErrBucketAlreadyExists), err) {
-			w.WriteHeader(http.StatusConflict)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	defer data.Close()
+
+	//extenstion := filepath.Ext(fileData.Filename)
+
+	byteData, err := ioutil.ReadAll(data)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	size := len(byteData)
+	compressedSize, compressedData, err := compressor.CompressFile(byteData)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	err = a.fb.SaveFile(compressedData, fileData.Filename, bucket)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	mimeType := mimetype.Detect(byteData)
+
+	file := filebrowser.NewFile(fileData.Filename, bucket, uint64(size), uint64(compressedSize), mimeType.String())
+
+	err = a.db.AddFile(file)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.Status(http.StatusCreated)
+}
+
+func (a *API) search(c *gin.Context) {
+	searchQuery := c.Query("q")
+	if searchQuery == "" {
+		c.Status(http.StatusNoContent)
+		return
+	}
+
+	files, err := a.db.SearchFiles(searchQuery)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.Status(http.StatusNotFound)
 			return
 		}
 
-		w.WriteHeader(http.StatusInternalServerError)
+		c.Status(http.StatusInternalServerError)
 		return
 	}
 
-	bucket := "test-bucket"
-	file := filebrowser.NewFile(fileName+".gz", bucket, uint64(sizeBeforeCompression), uint64(compressedSize), mimetype)
-
-	//insert record into the database
-	err = a.db.AddFile(file)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	return
+	c.JSON(http.StatusOK, gin.H{
+		"files": files,
+	})
 }
 
-func (a *API) search(w http.ResponseWriter, req *http.Request) {
-	if req.Method != "POST" {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	query := req.URL.Query()
-	fmt.Println(query.Get("q"))
+func (a *API) delete(c *gin.Context) {
 
 }
