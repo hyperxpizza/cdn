@@ -130,6 +130,8 @@ func (c CDNServiceImpl) UploadFile(stream pb.CDNGrpcService_UploadFileServer) er
 		)
 	}
 
+	//get bucket id by name
+
 	//insert into the bucket
 	err = c.fb.SaveFile(compressedData, file.Name, file.Bucket)
 	if err != nil {

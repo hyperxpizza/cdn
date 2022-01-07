@@ -52,7 +52,7 @@ func (db *Database) InsertBucket(name string) (int, error) {
 func (db *Database) GetBucketByName(name string) (*filebrowser.Bucket, error) {
 	var bucket filebrowser.Bucket
 
-	err := db.QueryRow(`select * from buckets where name=$1`).Scan(
+	err := db.QueryRow(`select * from buckets where name=$1`, name).Scan(
 		&bucket.ID,
 		&bucket.Name,
 		&bucket.Created,
@@ -68,12 +68,23 @@ func (db *Database) GetBucketByName(name string) (*filebrowser.Bucket, error) {
 func (db *Database) GetBucketIDByName(name string) (int, error) {
 	var id int
 
-	err := db.QueryRow(`select id from buckets where name = $1`).Scan(&id)
+	err := db.QueryRow(`select id from buckets where name = $1`, name).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
 
 	return id, nil
+}
+
+func (db *Database) GetBucketNameByID(id int) (string, error) {
+	var name string
+
+	err := db.QueryRow(`select name from buckets where id = $1`, id).Scan(&name)
+	if err != nil {
+		return "", err
+	}
+
+	return name, nil
 }
 
 func (db *Database) UpdateBucketTime(name string) error {
