@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/hyperxpizza/cdn/pkg/config"
 	"github.com/hyperxpizza/cdn/pkg/filebrowser"
@@ -30,6 +31,39 @@ func NewDatabase(c *config.Config) (*Database, error) {
 	}
 
 	return &Database{database}, nil
+}
+
+func (db *Database) InsertBucket(name string) (int, error) {
+	var id int
+
+	stmt, err := db.Prepare(`insert into buckets(id, name, created, updated) values(default, $1, $2, $3`)
+	if err != nil {
+		return 0, err
+	}
+
+	err = stmt.QueryRow(name, time.Now(), time.Now()).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (db *Database) CheckIfBucketExists(name string) bool {
+
+	var id int
+
+	return true
+}
+
+func (db *Database) GetBucketByName(name string) (*filebrowser.Bucket, error) {
+	var bucket filebrowser.Bucket
+
+	return &bucket, nil
+}
+
+func (db *Database) DeleteBucket(name string) error {
+	return nil
 }
 
 func (db *Database) CheckIfFileExists(name, bucket string) error {
@@ -58,7 +92,7 @@ func (db *Database) AddFile(f filebrowser.File) error {
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, `update files set files_token=to_tsvector($1) where id =$2`, f.Name, id)
+	_, err = tx.ExecContext(ctx, `update files set files_token=to_tsvector($1) where id = $2`, f.Name, id)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -99,7 +133,7 @@ func (d *Database) SearchFiles(query string) ([]*filebrowser.File, error) {
 		err := rows.Scan(
 			&file.ID,
 			&file.Name,
-			&file.Bucket,
+			&file.BucketID,
 			&file.Size,
 			&file.SizeAfterCompression,
 			&file.Extension,

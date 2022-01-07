@@ -74,6 +74,9 @@ func TestSearchFile(t *testing.T) {
 }
 */
 
+/*
+go test -v ./tests/ --run TestUploadFile --config=/home/hyperxpizza/dev/golang/cdn/config.json --secure=false --filePath=/home/hyperxpizza/dev/grafana_test.json --bucket=test-bucket --delete=true
+*/
 func TestUploadFile(t *testing.T) {
 	flag.Parse()
 
@@ -157,6 +160,10 @@ func TestUploadFile(t *testing.T) {
 
 	_, err = stream.CloseAndRecv()
 	assert.NoError(t, err)
+
+	if *delete {
+
+	}
 }
 
 func TestDownloadFile(t *testing.T) {}
