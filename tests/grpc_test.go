@@ -124,9 +124,9 @@ func TestUploadFile(t *testing.T) {
 	request := &pb.UploadFileRequest{
 		Data: &pb.UploadFileRequest_File{
 			File: &pb.File{
-				Name:   file.Name(),
-				Bucket: *bucket,
-				Size:   uint64(info.Size()),
+				Name: file.Name(),
+				//Bucket: *bucket,
+				Size: uint64(info.Size()),
 			},
 		},
 	}

@@ -65,6 +65,17 @@ func (db *Database) GetBucketByName(name string) (*filebrowser.Bucket, error) {
 	return &bucket, nil
 }
 
+func (db *Database) GetBucketIDByName(name string) (int, error) {
+	var id int
+
+	err := db.QueryRow(`select id from buckets where name = $1`).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
 func (db *Database) UpdateBucketTime(name string) error {
 	stmt, err := db.Prepare(`update buckets set updated = $1 where name = $2`)
 	if err != nil {
