@@ -49,20 +49,47 @@ func (db *Database) InsertBucket(name string) (int, error) {
 	return id, nil
 }
 
-func (db *Database) CheckIfBucketExists(name string) bool {
-
-	var id int
-
-	return true
-}
-
 func (db *Database) GetBucketByName(name string) (*filebrowser.Bucket, error) {
 	var bucket filebrowser.Bucket
+
+	err := db.QueryRow(`select * from buckets where name=$1`).Scan(
+		&bucket.ID,
+		&bucket.Name,
+		&bucket.Created,
+		&bucket.Updated,
+	)
+	if err != nil {
+		return nil, err
+	}
 
 	return &bucket, nil
 }
 
+func (db *Database) UpdateBucketTime(name string) error {
+	stmt, err := db.Prepare(`update buckets set updated = $1 where name = $2`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(time.Now(), name)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (db *Database) DeleteBucket(name string) error {
+	stmt, err := db.Prepare(`delete from buckets where name = $1`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(name)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
