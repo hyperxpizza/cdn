@@ -26,12 +26,13 @@ import (
 
 type CDNServiceImpl struct {
 	pb.UnimplementedCDNGrpcServiceServer
-	cfg *config.Config
-	db  *database.Database
-	fb  *filebrowser.FileBrowser
+	cfg    *config.Config
+	db     *database.Database
+	fb     *filebrowser.FileBrowser
+	secure bool
 }
 
-func NewCDNService(c *config.Config) (*CDNServiceImpl, error) {
+func NewCDNService(c *config.Config, secure bool) (*CDNServiceImpl, error) {
 	db, err := database.NewDatabase(c)
 	if err != nil {
 		return nil, err
@@ -43,9 +44,10 @@ func NewCDNService(c *config.Config) (*CDNServiceImpl, error) {
 	}
 
 	return &CDNServiceImpl{
-		cfg: c,
-		db:  db,
-		fb:  fb,
+		cfg:    c,
+		db:     db,
+		fb:     fb,
+		secure: secure,
 	}, nil
 }
 

@@ -1,16 +1,31 @@
-FROM golang:1.17-alpine AS build
+from golang:alpine
 
-RUN apk update && apk upgrade && apk add --no-cache git
-WORKDIR /tmp/app
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
+
+ENV grpc=true
+ENV rest=false
+ENV secure=false
+
+
+WORKDIR /build
+
 COPY go.mod .
 COPY go.sum .
-COPY . .
-RUN GOOS=linux go build -o ./out/api .
+RUN go mod download
 
-FROM alpine:latest
-RUN apk add ca-certificates
-COPY --from=build /tmp/app/out/api /app/api
-WORKDIR "/app"
+COPY . .
+
+RUN go build -o main ./cmd/cdn/main.go
+
+WORKDIR /dist
+
+RUN cp /build/main .
+RUN cp /build/config.json .
+
 EXPOSE 8888
 EXPOSE 8887
-CMD ["./api"]
+
+CMD ["/dist/main", "--config=./config.json", "--grpc=true", "--rest=true", "--secure=false"]

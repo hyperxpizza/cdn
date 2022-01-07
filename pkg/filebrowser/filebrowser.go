@@ -91,7 +91,7 @@ func (fb *FileBrowser) GetFile(name, bucket string) (*os.File, error) {
 	}
 
 	if !fb.CheckIfFileExists(bucket, name) {
-		return nil, customErrors.Wrap(customErrors.ErrBucketNotFound)
+		return nil, customErrors.Wrap(customErrors.ErrFileNotFound)
 	}
 
 	fullPath := fmt.Sprintf("%s/%s/%s", fb.rootPath, bucket, name)

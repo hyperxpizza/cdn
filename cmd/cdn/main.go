@@ -13,6 +13,7 @@ import (
 var grpcFlag = flag.Bool("grpc", false, "set true to run a grpc server")
 var configPath = flag.String("config", "", "path to config.json file")
 var restFlag = flag.Bool("rest", true, "set true to run a rest server")
+var secure = flag.Bool("secure", false, "secure grpc connection witr tls")
 
 func main() {
 	flag.Parse()
@@ -33,7 +34,7 @@ func main() {
 	if *grpcFlag {
 		wg.Add(1)
 		go func() {
-			server, err := impl.NewCDNService(c)
+			server, err := impl.NewCDNService(c, *secure)
 			if err != nil {
 				wg.Done()
 				return

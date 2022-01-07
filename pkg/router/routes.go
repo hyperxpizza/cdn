@@ -14,7 +14,47 @@ import (
 
 func (a *API) download(c *gin.Context) {
 	bucket := c.Param("bucket")
-	name :=
+	name := c.Param("name")
+
+	if bucket == "" || name == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	//check if file exists in the database
+	err := a.db.CheckIfFileExists(name, bucket)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	/*
+		//get file from the filebrowser
+		file, err := a.fb.GetFile(name, bucket)
+		if err != nil {
+			if errors.Is(err, customErrors.Wrap(customErrors.ErrBucketNotFound)) || errors.Is(err, customErrors.Wrap(customErrors.ErrFileNotFound)) {
+				c.Status(http.StatusNotFound)
+				return
+			}
+
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+
+
+			data, err := ioutil.ReadAll(file)
+			if err != nil {
+				c.Status(http.StatusInternalServerError)
+				return
+			}
+
+			c.File()
+	*/
 }
 
 func (a *API) upload(c *gin.Context) {

@@ -7,14 +7,15 @@
         "password": "cdndbpassword",
         "port": 5432,
         "name": "cdndb",
-        "host": "127.0.0.1"
+        "host": "postgres"
     },
     "FileBrowser": {
-        "rootPath": "/home/hyperxpizza/dev/golang/cdn/files_root"
+        "rootPath": "./files_root"
     },
     "Grpc": {
         "host": "127.0.0.1",
-        "port": 8887
+        "port": 8887,
+        "certPath": ""
     },
     "Rest": {
         "host": "127.0.0.1",

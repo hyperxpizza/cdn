@@ -1,4 +1,10 @@
 
+
+--create table buckets (
+--    id serial primary key,
+--    name varchar(100) not null
+--);
+
 create table files (
     id serial primary key,
     name text not null,

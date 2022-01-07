@@ -268,5 +268,5 @@ var CDNGrpcService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "grpc.proto",
+	Metadata: "pkg/grpc/grpc.proto",
 }
