@@ -227,8 +227,8 @@ func (c CDNServiceImpl) DownloadFile(req *pb.DownloadFileRequest, stream pb.CDNG
 	return nil
 }
 
-func (c CDNServiceImpl) SearchFiles(ctx context.Context, req *pb.SearchRequest) (*pb.SearchResponse, error) {
-	var resp pb.SearchResponse
+func (c CDNServiceImpl) SearchFiles(ctx context.Context, req *pb.SearchRequest) (*pb.FileArray, error) {
+	var resp pb.FileArray
 
 	files, err := c.db.SearchFiles(req.GetPhrase())
 	if err != nil {
@@ -292,6 +292,23 @@ func (c CDNServiceImpl) DeleteFile(ctx context.Context, req *pb.DeleteFileReques
 			err.Error(),
 		)
 	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c CDNServiceImpl) CreateBucket(ctx context.Context, req *pb.BucketName) (*pb.CreateBucketResponse, error) {
+	var resp pb.CreateBucketResponse
+
+	return &resp, nil
+}
+
+func (c CDNServiceImpl) GetFilesFromBucket(ctx context.Context, req *pb.BucketName) (*pb.FileArray, error) {
+	var arr pb.FileArray
+
+	return &arr, nil
+}
+
+func (c CDNServiceImpl) DeleteBucket(ctx context.Context, req *pb.BucketName) (*emptypb.Empty, error) {
 
 	return &emptypb.Empty{}, nil
 }
