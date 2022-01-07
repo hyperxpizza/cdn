@@ -10,7 +10,7 @@ func mapFile(file *filebrowser.File) pb.File {
 	return pb.File{
 		Id:                   int64(file.ID),
 		Name:                 file.Name,
-		Bucket:               file.Bucket,
+		BucketID:             file.BucketID,
 		Size:                 file.Size,
 		SizeAfterCompression: file.SizeAfterCompression,
 		Extension:            file.Extension,
@@ -23,9 +23,9 @@ func mapFile(file *filebrowser.File) pb.File {
 
 func unmapFile(file *pb.File) filebrowser.File {
 	return filebrowser.File{
-		ID:                   int(file.Id),
+		ID:                   file.Id,
 		Name:                 file.Name,
-		Bucket:               file.Bucket,
+		BucketID:             file.BucketID,
 		Size:                 file.Size,
 		SizeAfterCompression: file.SizeAfterCompression,
 		Extension:            file.Extension,

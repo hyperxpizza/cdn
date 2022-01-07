@@ -3,9 +3,9 @@ package filebrowser
 import "time"
 
 type File struct {
-	ID                   int       `json:"id"`
+	ID                   int64     `json:"id"`
 	Name                 string    `json:"name"`
-	BucketID             int       `json:"bucket_id"`
+	BucketID             int64     `json:"bucket_id"`
 	Size                 uint64    `json:"size"`
 	SizeAfterCompression uint64    `json:"size_after_compression"`
 	Extension            string    `json:"extension"`
@@ -14,7 +14,7 @@ type File struct {
 	Updated              time.Time `json:"updated"`
 }
 
-func NewFile(name string, bucketID int, size uint64, sizeAfterCompression uint64, mimeType string) File {
+func NewFile(name string, bucketID int64, size uint64, sizeAfterCompression uint64, mimeType string) File {
 	return File{
 		Name:                 name,
 		BucketID:             bucketID,

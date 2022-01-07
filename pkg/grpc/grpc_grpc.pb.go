@@ -21,8 +21,11 @@ const _ = grpc.SupportPackageIsVersion7
 type CDNGrpcServiceClient interface {
 	UploadFile(ctx context.Context, opts ...grpc.CallOption) (CDNGrpcService_UploadFileClient, error)
 	DownloadFile(ctx context.Context, in *DownloadFileRequest, opts ...grpc.CallOption) (CDNGrpcService_DownloadFileClient, error)
-	SearchFiles(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
+	SearchFiles(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*FileArray, error)
 	DeleteFile(ctx context.Context, in *DeleteFileRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	CreateBucket(ctx context.Context, in *BucketName, opts ...grpc.CallOption) (*CreateBucketResponse, error)
+	GetFilesFromBucket(ctx context.Context, in *BucketName, opts ...grpc.CallOption) (*FileArray, error)
+	DeleteBucket(ctx context.Context, in *BucketName, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type cDNGrpcServiceClient struct {
@@ -99,8 +102,8 @@ func (x *cDNGrpcServiceDownloadFileClient) Recv() (*DownlaodFileRespose, error) 
 	return m, nil
 }
 
-func (c *cDNGrpcServiceClient) SearchFiles(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error) {
-	out := new(SearchResponse)
+func (c *cDNGrpcServiceClient) SearchFiles(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*FileArray, error) {
+	out := new(FileArray)
 	err := c.cc.Invoke(ctx, "/CDNGrpcService/SearchFiles", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -117,14 +120,44 @@ func (c *cDNGrpcServiceClient) DeleteFile(ctx context.Context, in *DeleteFileReq
 	return out, nil
 }
 
+func (c *cDNGrpcServiceClient) CreateBucket(ctx context.Context, in *BucketName, opts ...grpc.CallOption) (*CreateBucketResponse, error) {
+	out := new(CreateBucketResponse)
+	err := c.cc.Invoke(ctx, "/CDNGrpcService/CreateBucket", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDNGrpcServiceClient) GetFilesFromBucket(ctx context.Context, in *BucketName, opts ...grpc.CallOption) (*FileArray, error) {
+	out := new(FileArray)
+	err := c.cc.Invoke(ctx, "/CDNGrpcService/GetFilesFromBucket", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cDNGrpcServiceClient) DeleteBucket(ctx context.Context, in *BucketName, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/CDNGrpcService/DeleteBucket", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CDNGrpcServiceServer is the server API for CDNGrpcService service.
 // All implementations must embed UnimplementedCDNGrpcServiceServer
 // for forward compatibility
 type CDNGrpcServiceServer interface {
 	UploadFile(CDNGrpcService_UploadFileServer) error
 	DownloadFile(*DownloadFileRequest, CDNGrpcService_DownloadFileServer) error
-	SearchFiles(context.Context, *SearchRequest) (*SearchResponse, error)
+	SearchFiles(context.Context, *SearchRequest) (*FileArray, error)
 	DeleteFile(context.Context, *DeleteFileRequest) (*empty.Empty, error)
+	CreateBucket(context.Context, *BucketName) (*CreateBucketResponse, error)
+	GetFilesFromBucket(context.Context, *BucketName) (*FileArray, error)
+	DeleteBucket(context.Context, *BucketName) (*empty.Empty, error)
 	mustEmbedUnimplementedCDNGrpcServiceServer()
 }
 
@@ -138,11 +171,20 @@ func (UnimplementedCDNGrpcServiceServer) UploadFile(CDNGrpcService_UploadFileSer
 func (UnimplementedCDNGrpcServiceServer) DownloadFile(*DownloadFileRequest, CDNGrpcService_DownloadFileServer) error {
 	return status.Errorf(codes.Unimplemented, "method DownloadFile not implemented")
 }
-func (UnimplementedCDNGrpcServiceServer) SearchFiles(context.Context, *SearchRequest) (*SearchResponse, error) {
+func (UnimplementedCDNGrpcServiceServer) SearchFiles(context.Context, *SearchRequest) (*FileArray, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchFiles not implemented")
 }
 func (UnimplementedCDNGrpcServiceServer) DeleteFile(context.Context, *DeleteFileRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteFile not implemented")
+}
+func (UnimplementedCDNGrpcServiceServer) CreateBucket(context.Context, *BucketName) (*CreateBucketResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBucket not implemented")
+}
+func (UnimplementedCDNGrpcServiceServer) GetFilesFromBucket(context.Context, *BucketName) (*FileArray, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFilesFromBucket not implemented")
+}
+func (UnimplementedCDNGrpcServiceServer) DeleteBucket(context.Context, *BucketName) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBucket not implemented")
 }
 func (UnimplementedCDNGrpcServiceServer) mustEmbedUnimplementedCDNGrpcServiceServer() {}
 
@@ -240,6 +282,60 @@ func _CDNGrpcService_DeleteFile_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CDNGrpcService_CreateBucket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BucketName)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDNGrpcServiceServer).CreateBucket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CDNGrpcService/CreateBucket",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDNGrpcServiceServer).CreateBucket(ctx, req.(*BucketName))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDNGrpcService_GetFilesFromBucket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BucketName)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDNGrpcServiceServer).GetFilesFromBucket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CDNGrpcService/GetFilesFromBucket",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDNGrpcServiceServer).GetFilesFromBucket(ctx, req.(*BucketName))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CDNGrpcService_DeleteBucket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BucketName)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CDNGrpcServiceServer).DeleteBucket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CDNGrpcService/DeleteBucket",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CDNGrpcServiceServer).DeleteBucket(ctx, req.(*BucketName))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CDNGrpcService_ServiceDesc is the grpc.ServiceDesc for CDNGrpcService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -255,6 +351,18 @@ var CDNGrpcService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "DeleteFile",
 			Handler:    _CDNGrpcService_DeleteFile_Handler,
 		},
+		{
+			MethodName: "CreateBucket",
+			Handler:    _CDNGrpcService_CreateBucket_Handler,
+		},
+		{
+			MethodName: "GetFilesFromBucket",
+			Handler:    _CDNGrpcService_GetFilesFromBucket_Handler,
+		},
+		{
+			MethodName: "DeleteBucket",
+			Handler:    _CDNGrpcService_DeleteBucket_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
@@ -268,5 +376,5 @@ var CDNGrpcService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "pkg/grpc/grpc.proto",
+	Metadata: "grpc.proto",
 }
