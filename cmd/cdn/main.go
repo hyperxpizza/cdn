@@ -41,6 +41,8 @@ func main() {
 			}
 
 			server.Run()
+			wg.Done()
+			return
 		}()
 	}
 

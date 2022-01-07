@@ -28,4 +28,4 @@ RUN cp /build/config.json .
 EXPOSE 8888
 EXPOSE 8887
 
-CMD ["/dist/main", "--config=./config.json", "--grpc=true", "--rest=true", "--secure=false"]
+CMD ["/dist/main", "--config=./config.json", "--grpc=true", "--rest=false", "--secure=false"]
